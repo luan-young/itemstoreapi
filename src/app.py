@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
+from user import UserRegister
 
 app = Flask(__name__)
 app.secret_key = 'replace_for_secret_out_of_source_code'
@@ -14,8 +15,7 @@ items = []
 class Item(Resource):
 
     parser = reqparse.RequestParser()
-    parser.add_argument(
-        'price',
+    parser.add_argument('price',
         type=float,
         required=True,
         help='This field cannot be left blank.'
@@ -23,7 +23,7 @@ class Item(Resource):
 
     def get(self, name):
         item = next(filter(lambda x: x['name'] == name, items), None)
-        return {'name': item}, 200 if item else 404 # 200: ok; 404: not found
+        return {'item': item}, 200 if item else 404 # 200: ok; 404: not found
 
     def post(self, name):
         if next(filter(lambda x: x['name'] == name, items), None):
@@ -57,6 +57,7 @@ class Items(Resource):
 
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(Items, '/items')
+api.add_resource(UserRegister, '/register')
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
