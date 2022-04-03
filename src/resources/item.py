@@ -67,12 +67,13 @@ class Item(Resource):
         try:
             item = ItemModel.find_by_name(name)
         except:
-            return {'message': f'Item {name} not found.'}, 400 # 400: bad request
+            return {'message': 'Failed when searching for item.'}, 500 # 500: internal server error
 
-        try:
-            item.remove()
-        except:
-            return {'message': 'Failed when deleting item.'}, 500 # 500: internal server error
+        if item:
+            try:
+                item.remove()
+            except:
+                return {'message': 'Failed when deleting item.'}, 500 # 500: internal server error
         return {'message': f'Item {name} was removed.'}
 
 class ItemList(Resource):
