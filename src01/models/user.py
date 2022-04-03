@@ -9,7 +9,7 @@ class UserModel:
 
     @classmethod
     def get_user_by_name(cls, name):
-        connection = sqlite3.connect('data.db')
+        connection = sqlite3.connect('data01.db')
         cursor = connection.cursor()
 
         qry = 'SELECT id, name, password FROM users WHERE name=?'
@@ -22,7 +22,7 @@ class UserModel:
 
     @classmethod
     def get_user_by_id(cls, _id):
-        connection = sqlite3.connect('data.db')
+        connection = sqlite3.connect('data01.db')
         cursor = connection.cursor()
 
         qry = 'SELECT id, name, password FROM users WHERE id=?'

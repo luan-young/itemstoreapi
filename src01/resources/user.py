@@ -23,7 +23,7 @@ class UserRegister(Resource):
         if UserModel.get_user_by_name(req_data['username']):
             return {'message': 'User already exists.'}, 400
 
-        connection = sqlite3.connect('data.db')
+        connection = sqlite3.connect('data01.db')
         cursor = connection.cursor()
 
         qry = 'INSERT INTO users VALUES (NULL, ?, ?)'

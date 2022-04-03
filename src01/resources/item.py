@@ -78,7 +78,7 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
-        connection = sqlite3.connect('data.db')
+        connection = sqlite3.connect('data01.db')
         cursor = connection.cursor()
 
         qry = "SELECT name, price FROM items"

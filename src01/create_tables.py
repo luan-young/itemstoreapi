@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('data.db')
+conn = sqlite3.connect('data01.db')
 cursor = conn.cursor()
 
 create_qry = """
