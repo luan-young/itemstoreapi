@@ -11,6 +11,11 @@ class Item(Resource):
         required=True,
         help='This field cannot be left blank.'
     )
+    parser.add_argument('store_id',
+        type=int,
+        required=True,
+        help='Every item needs a store id.'
+    )
 
     def get(self, name):
         try:
@@ -30,7 +35,7 @@ class Item(Resource):
             return {'message': 'Failed when searching for item.'}, 500 # 500: internal server error
             
         req_data = Item.parser.parse_args()
-        item = ItemModel(name, req_data['price'])
+        item = ItemModel(name, req_data['price'], req_data['store_id'])
 
         try:
             item.save_to_db()
@@ -49,8 +54,9 @@ class Item(Resource):
 
         if item:
             item.price = req_data['price']
+            item.store_id = req_data['store_id']
         else:
-            item = ItemModel(name, req_data['price'])
+            item = ItemModel(name, req_data['price'], req_data['store_id'])
 
         try:
             item.save_to_db()
@@ -72,6 +78,7 @@ class Item(Resource):
             except:
                 return {'message': 'Failed when deleting item.'}, 500 # 500: internal server error
         return {'message': f'Item {name} was removed.'}
+
 
 class ItemList(Resource):
     def get(self):
