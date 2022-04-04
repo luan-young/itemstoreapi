@@ -25,7 +25,7 @@ class Item(Resource):
 
         if item:
             return {'item': item.json()}
-            
+
         return {'message': f'Item {name} not found.'}, 404
 
     def post(self, name):
@@ -73,14 +73,14 @@ class Item(Resource):
         except:
             return {'message': 'Failed when searching for item.'}, 500 # 500: internal server error
 
-        if item:
-            try:
-                item.delete_from_db()
-                return {'message': f'Item {name} was removed.'}
-            except:
-                return {'message': 'Failed when deleting item.'}, 500 # 500: internal server error
-
-        return {'message': f'Item {name} not found.'}, 404
+        if not item:
+            return {'message': f'Item {name} not found.'}, 404
+            
+        try:
+            item.delete_from_db()
+            return {'message': f'Item {name} was removed.'}
+        except:
+            return {'message': 'Failed when deleting item.'}, 500 # 500: internal server error
 
 
 class ItemList(Resource):

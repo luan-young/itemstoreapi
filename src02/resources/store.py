@@ -37,14 +37,14 @@ class Store(Resource):
         except:
             return {'message': 'Failed when searching for store.'}, 500 # 500: internal server error
 
-        if store:
-            try:
-                store.delete_from_db()
-                return {'message': f'Store {name} was removed.'}
-            except:
-                return {'message': 'Failed when deleting store.'}, 500 # 500: internal server error
-            
-        return {'message': f'Store {name} not found.'}, 404
+        if not store:
+            return {'message': f'Store {name} not found.'}, 404
+
+        try:
+            store.delete_from_db()
+            return {'message': f'Store {name} was removed.'}
+        except:
+            return {'message': 'Failed when deleting store.'}, 500 # 500: internal server error
 
 
 class StoreList(Resource):
