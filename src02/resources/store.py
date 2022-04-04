@@ -12,6 +12,7 @@ class Store(Resource):
 
         if store:
             return {'store': store.json()}
+
         return {'message': f'Store {name} not found.'}, 404
 
     def post(self, name):
@@ -39,11 +40,17 @@ class Store(Resource):
         if store:
             try:
                 store.delete_from_db()
+                return {'message': f'Store {name} was removed.'}
             except:
                 return {'message': 'Failed when deleting store.'}, 500 # 500: internal server error
-        return {'message': f'Store {name} was removed.'}
+            
+        return {'message': f'Store {name} not found.'}, 404
 
 
 class StoreList(Resource):
+
     def get(self):
-        return {'stores': [store.json() for store in StoreModel.find_all()]}
+        try:
+            return {'stores': [store.json() for store in StoreModel.find_all()]}
+        except:
+            return {'message': 'Failed when searching for stores.'}, 500 # 500: internal server error

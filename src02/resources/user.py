@@ -20,7 +20,7 @@ class UserRegister(Resource):
         req_data = UserRegister.parser.parse_args()
 
         try:
-            if UserModel.get_user_by_name(req_data['username']):
+            if UserModel.find_by_name(req_data['username']):
                 return {'message': 'User already exists.'}, 400
 
             user = UserModel(req_data['username'], req_data['password'])

@@ -12,11 +12,11 @@ class UserModel(db.Model):
         self.password = password
 
     @classmethod
-    def get_user_by_name(cls, name):
+    def find_by_name(cls, name):
         return cls.query.filter_by(username=name).first()
 
     @classmethod
-    def get_user_by_id(cls, _id):
+    def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()
 
     def save_to_db(self):
