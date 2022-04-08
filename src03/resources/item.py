@@ -1,5 +1,6 @@
+from typing import Optional
 from flask_restful import Resource, reqparse
-from flask_jwt import  jwt_required
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
 from models.item import ItemModel
 
@@ -45,6 +46,7 @@ class Item(Resource):
 
         return {'item': item.json()}, 201 # 201: created
 
+    @jwt_required()
     def put(self, name):
         req_data = Item.parser.parse_args()
 
@@ -66,8 +68,12 @@ class Item(Resource):
 
         return {'item': item.json()}
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, name):
+        claims = get_jwt()
+        if not claims['is_admin']:
+            return {'message': 'Admin privilege required.'}, 401
+
         try:
             item = ItemModel.find_by_name(name)
         except:
@@ -85,8 +91,18 @@ class Item(Resource):
 
 class ItemList(Resource):
 
+    @jwt_required(optional=True)
     def get(self):
+        user_id = get_jwt_identity()
+
         try:
-            return {'items': [item.json() for item in ItemModel.find_all()]}
+            items = [item.json() for item in ItemModel.find_all()]
         except:
             return {'message': 'Failed when searching for items.'}, 500 # 500: internal server error
+
+        if user_id:
+            return {'items': items}
+        return {
+            'items': [item['name'] for item in items],
+            'message': 'More data available only to logged in users.'
+        }
