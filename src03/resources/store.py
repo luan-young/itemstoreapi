@@ -4,7 +4,7 @@ from models.store import StoreModel
 
 class Store(Resource):
 
-    def get(self, name):
+    def get(self, name: str):
         try:
             store = StoreModel.find_by_name(name)
         except:
@@ -15,7 +15,7 @@ class Store(Resource):
 
         return {'message': f'Store {name} not found.'}, 404
 
-    def post(self, name):
+    def post(self, name: str):
         try:
             if StoreModel.find_by_name(name):
                 return {'message': f'Store {name} already exists.'}, 400 # 400: bad request
@@ -31,7 +31,7 @@ class Store(Resource):
 
         return {'store': store.json()}, 201 # 201: created
 
-    def delete(self, name):
+    def delete(self, name: str):
         try:
             store = StoreModel.find_by_name(name)
         except:

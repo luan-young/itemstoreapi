@@ -37,7 +37,7 @@ class UserRegister(Resource):
 class User(Resource):
 
     @classmethod
-    def get(cls, user_id):
+    def get(cls, user_id: int):
         try:
             user = UserModel.find_by_id(user_id)
         except:
@@ -49,7 +49,7 @@ class User(Resource):
         return {'message': f'User {user_id} not found.'}, 404
 
     @classmethod
-    def delete(cls, user_id):
+    def delete(cls, user_id: int):
         try:
             user = UserModel.find_by_id(user_id)
         except:

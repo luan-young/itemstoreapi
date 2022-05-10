@@ -18,7 +18,7 @@ class Item(Resource):
         help='Every item needs a store id.'
     )
 
-    def get(self, name):
+    def get(self, name: str):
         try:
             item = ItemModel.find_by_name(name)
         except:
@@ -29,7 +29,7 @@ class Item(Resource):
 
         return {'message': f'Item {name} not found.'}, 404
 
-    def post(self, name):
+    def post(self, name: str):
         try:
             if ItemModel.find_by_name(name):
                 return {'message': f'Item {name} already exists.'}, 400 # 400: bad request
@@ -47,7 +47,7 @@ class Item(Resource):
         return {'item': item.json()}, 201 # 201: created
 
     @jwt_required()
-    def put(self, name):
+    def put(self, name: str):
         req_data = Item.parser.parse_args()
 
         try:
@@ -69,7 +69,7 @@ class Item(Resource):
         return {'item': item.json()}
 
     @jwt_required(fresh=True)
-    def delete(self, name):
+    def delete(self, name: str):
         claims = get_jwt()
         if not claims['is_admin']:
             return {'message': 'Admin privilege required.'}, 401
