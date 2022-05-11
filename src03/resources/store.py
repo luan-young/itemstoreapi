@@ -2,55 +2,68 @@ from flask_restful import Resource
 
 from models.store import StoreModel
 
+SRV_ERR_SEARCHING = 'Failed while searching for store in DB.'
+SRV_ERR_SAVING = 'Failed while saving store in DB.'
+SRV_ERR_DELETING = 'Failed while deleting store in DB.'
+
+CL_ERR_NOT_FOUND = 'Store {} not found in DB.'
+CL_ERR_ALREADY_EXISTS = 'Store {} already exists in DB.'
+
+MSG_DELETED = 'Store {} was removed from DB.'
+
 class Store(Resource):
 
-    def get(self, name: str):
+    @classmethod
+    def get(cls, name: str):
         try:
             store = StoreModel.find_by_name(name)
         except:
-            return {'message': 'Failed when searching for store.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
 
         if store:
             return {'store': store.json()}
 
-        return {'message': f'Store {name} not found.'}, 404
+        return {'message': CL_ERR_NOT_FOUND.format(name)}, 404
 
-    def post(self, name: str):
+    @classmethod
+    def post(cls, name: str):
         try:
             if StoreModel.find_by_name(name):
-                return {'message': f'Store {name} already exists.'}, 400 # 400: bad request
+                return {'message': CL_ERR_ALREADY_EXISTS.format(name)}, 400 # 400: bad request
         except:
-            return {'message': 'Failed when searching for store.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
             
         store = StoreModel(name)
 
         try:
             store.save_to_db()
         except:
-            return {'message': 'Failed when saving store.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_SAVING}, 500 # 500: internal server error
 
         return {'store': store.json()}, 201 # 201: created
 
-    def delete(self, name: str):
+    @classmethod
+    def delete(cls, name: str):
         try:
             store = StoreModel.find_by_name(name)
         except:
-            return {'message': 'Failed when searching for store.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
 
         if not store:
-            return {'message': f'Store {name} not found.'}, 404
+            return {'message': CL_ERR_NOT_FOUND.format(name)}, 404
 
         try:
             store.delete_from_db()
-            return {'message': f'Store {name} was removed.'}
+            return {'message': MSG_DELETED.format(name)}
         except:
-            return {'message': 'Failed when deleting store.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_DELETING}, 500 # 500: internal server error
 
 
 class StoreList(Resource):
 
-    def get(self):
+    @classmethod
+    def get(cls):
         try:
             return {'stores': [store.json() for store in StoreModel.find_all()]}
         except:
-            return {'message': 'Failed when searching for stores.'}, 500 # 500: internal server error
+            return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
