@@ -14,9 +14,6 @@ class UserModel(db.Model):
         self.username = username
         self.password = password
 
-    def json(self) -> UserJSON:
-        return {'id': self.id, 'username': self.username}
-
     @classmethod
     def find_by_name(cls, name: str) -> "UserModel":
         return cls.query.filter_by(username=name).first()

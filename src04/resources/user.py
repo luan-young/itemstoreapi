@@ -1,8 +1,10 @@
-import imp
-from flask_restful import Resource, reqparse
+from flask import request
+from flask_restful import Resource
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
+from marshmallow import ValidationError
 
 from models.user import UserModel
+from schemas.user import UserSchema
 from blocklist import users_logged_out_jwt_ids
 
 SRV_ERR_SEARCHING = 'Failed while searching for user in DB.'
@@ -17,34 +19,27 @@ MSG_CREATED = 'User {} was created in DB.'
 MSG_DELETED = 'User {} was removed from DB.'
 MSG_LOGGED_OUT = 'User logged out.'
 
-_user_parser = reqparse.RequestParser()
-_user_parser.add_argument('username',
-    type=str,
-    required=True,
-    help='This field cannot be left blank.'
-)
-_user_parser.add_argument('password',
-    type=str,
-    required=True,
-    help='This field cannot be left blank.'
-)
+user_schema = UserSchema()
 
 class UserRegister(Resource):
 
     @classmethod
     def post(cls):
-        req_data = _user_parser.parse_args()
+        try:
+            user_data = user_schema.load(request.get_json())
+        except ValidationError as err:
+            return err.messages, 400
 
         try:
-            if UserModel.find_by_name(req_data['username']):
-                return {'message': CL_ERR_ALREADY_EXISTS.format(req_data['username'])}, 400
+            if UserModel.find_by_name(user_data['username']):
+                return {'message': CL_ERR_ALREADY_EXISTS.format(user_data['username'])}, 400
 
-            user = UserModel(req_data['username'], req_data['password'])
+            user = UserModel(**user_data)
             user.save_to_db()
         except:
             return {'message': SRV_ERR_CREATING}, 500
 
-        return {'message': MSG_CREATED.format(req_data['username'])}, 201
+        return {'message': MSG_CREATED.format(user_data['username'])}, 201
 
 
 class User(Resource):
@@ -57,7 +52,7 @@ class User(Resource):
             return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
 
         if user:
-            return {'user': user.json()}
+            return {'user': user_schema.dump(user)}, 200
             
         return {'message': CL_ERR_NOT_FOUND.format(user_id)}, 404
 
@@ -82,11 +77,14 @@ class UserLogin(Resource):
 
     @classmethod
     def post(cls):
-        req_data = _user_parser.parse_args()
+        try:
+            user_data = user_schema.load(request.get_json())
+        except ValidationError as err:
+            return err.messages, 400
 
-        user = UserModel.find_by_name(req_data['username'])
+        user = UserModel.find_by_name(user_data['username'])
 
-        if user and user.password == req_data['password']: # change comparison for a safe comparison like hmac.compare_digest()
+        if user and user.password == user_data['password']: # change comparison for a safe comparison like hmac.compare_digest()
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             return {
