@@ -1,0 +1,7 @@
+flask
+flask-restful
+flask-jwt-extended
+flask-sqlalchemy
+marshmallow
+flask-marshmallow
+marshmallow-sqlalchemy
