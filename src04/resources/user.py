@@ -1,7 +1,6 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
-from marshmallow import ValidationError
 
 from models.user import UserModel
 from schemas.user import UserSchema
@@ -25,10 +24,7 @@ class UserRegister(Resource):
 
     @classmethod
     def post(cls):
-        try:
-            user_data = user_schema.load(request.get_json())
-        except ValidationError as err:
-            return err.messages, 400
+        user_data = user_schema.load(request.get_json())
 
         try:
             if UserModel.find_by_name(user_data.username):
@@ -76,10 +72,7 @@ class UserLogin(Resource):
 
     @classmethod
     def post(cls):
-        try:
-            user_data = user_schema.load(request.get_json())
-        except ValidationError as err:
-            return err.messages, 400
+        user_data = user_schema.load(request.get_json())
 
         user = UserModel.find_by_name(user_data.username)
 
