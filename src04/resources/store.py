@@ -1,6 +1,7 @@
 from flask_restful import Resource
 
 from models.store import StoreModel
+from schemas.store import StoreSchema
 
 SRV_ERR_SEARCHING = 'Failed while searching for store in DB.'
 SRV_ERR_SAVING = 'Failed while saving store in DB.'
@@ -10,6 +11,9 @@ CL_ERR_NOT_FOUND = 'Store {} not found in DB.'
 CL_ERR_ALREADY_EXISTS = 'Store {} already exists in DB.'
 
 MSG_DELETED = 'Store {} was removed from DB.'
+
+store_schema = StoreSchema()
+store_list_schema = StoreSchema(many=True)
 
 class Store(Resource):
 
@@ -21,7 +25,7 @@ class Store(Resource):
             return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
 
         if store:
-            return {'store': store.json()}
+            return {'store': store_schema.dump(store)}
 
         return {'message': CL_ERR_NOT_FOUND.format(name)}, 404
 
@@ -33,14 +37,14 @@ class Store(Resource):
         except:
             return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error
             
-        store = StoreModel(name)
+        store = StoreModel(name=name)
 
         try:
             store.save_to_db()
         except:
             return {'message': SRV_ERR_SAVING}, 500 # 500: internal server error
 
-        return {'store': store.json()}, 201 # 201: created
+        return {'store': store_schema.dump(store)}, 201 # 201: created
 
     @classmethod
     def delete(cls, name: str):
@@ -64,6 +68,6 @@ class StoreList(Resource):
     @classmethod
     def get(cls):
         try:
-            return {'stores': [store.json() for store in StoreModel.find_all()]}
+            return {'stores': store_list_schema.dump(StoreModel.find_all())}
         except:
             return {'message': SRV_ERR_SEARCHING}, 500 # 500: internal server error

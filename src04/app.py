@@ -3,6 +3,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
 from db import db
+from ma import	ma
 from resources.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
@@ -44,4 +45,5 @@ api.add_resource(TokenRefresh, '/refresh')
 
 if __name__ == '__main__':
     db.init_app(app)
+    ma.init_app(app)
     app.run(port=5000, debug=True)

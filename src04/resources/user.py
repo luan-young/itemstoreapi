@@ -31,15 +31,14 @@ class UserRegister(Resource):
             return err.messages, 400
 
         try:
-            if UserModel.find_by_name(user_data['username']):
-                return {'message': CL_ERR_ALREADY_EXISTS.format(user_data['username'])}, 400
+            if UserModel.find_by_name(user_data.username):
+                return {'message': CL_ERR_ALREADY_EXISTS.format(user_data.username)}, 400
 
-            user = UserModel(**user_data)
-            user.save_to_db()
+            user_data.save_to_db()
         except:
             return {'message': SRV_ERR_CREATING}, 500
 
-        return {'message': MSG_CREATED.format(user_data['username'])}, 201
+        return {'message': MSG_CREATED.format(user_data.username)}, 201
 
 
 class User(Resource):
@@ -82,9 +81,9 @@ class UserLogin(Resource):
         except ValidationError as err:
             return err.messages, 400
 
-        user = UserModel.find_by_name(user_data['username'])
+        user = UserModel.find_by_name(user_data.username)
 
-        if user and user.password == user_data['password']: # change comparison for a safe comparison like hmac.compare_digest()
+        if user and user.password == user_data.password: # change comparison for a safe comparison like hmac.compare_digest()
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             return {
